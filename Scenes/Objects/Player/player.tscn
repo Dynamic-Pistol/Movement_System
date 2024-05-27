@@ -1,0 +1,193 @@
+[gd_scene load_steps=18 format=3 uid="uid://bnlhb0bt7wj7q"]
+
+[ext_resource type="Script" path="res://Scenes/Objects/Player/Movement/movement_manager.gd" id="1_lc1wv"]
+[ext_resource type="Script" path="res://Scenes/Objects/Player/Movement/move_horizontal.gd" id="2_0vnm1"]
+[ext_resource type="Script" path="res://Scenes/Objects/Player/Movement/move_gravity.gd" id="3_14un3"]
+[ext_resource type="Script" path="res://Scenes/Objects/Player/Input/input_vector.gd" id="4_3bb1q"]
+[ext_resource type="Script" path="res://Scenes/Objects/Player/Movement/move_jump.gd" id="4_nvmm7"]
+[ext_resource type="Script" path="res://Scenes/Objects/Player/Movement/Speed/speed_sprint.gd" id="5_8hxon"]
+[ext_resource type="Script" path="res://Scenes/Objects/Player/Movement/camera_look.gd" id="5_oaegp"]
+[ext_resource type="Script" path="res://Scenes/Objects/Player/Input/input_manager.gd" id="7_61tfc"]
+[ext_resource type="Script" path="res://Scenes/Objects/Player/Input/input_click.gd" id="8_6b77e"]
+[ext_resource type="Script" path="res://Scenes/Objects/Player/Input/input_toggle.gd" id="9_3sw8w"]
+[ext_resource type="Script" path="res://Scenes/Objects/Player/Movement/Crouch/crouch_toggle.gd" id="11_f5iyu"]
+[ext_resource type="Script" path="res://Scenes/Objects/Player/Movement/Speed/speed_crouch.gd" id="11_rn585"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_qwyc7"]
+radius = 0.25
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_6txl0"]
+size = Vector3(0.5, 1, 0.5)
+
+[sub_resource type="Animation" id="Animation_ygdlc"]
+resource_name = "Crouch"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../../CollisionShape3D:shape:height")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [2.0, 1.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../../CollisionShape3D:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 1, 0), Vector3(0, 0.5, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("../../Head:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.5),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 1.6, 0), Vector3(0, 0.7, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_igcny"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("../../CollisionShape3D:shape:height")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [2.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("../../CollisionShape3D:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 1, 0)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("../../Head:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 1.6, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_blnip"]
+_data = {
+"Crouch": SubResource("Animation_ygdlc"),
+"RESET": SubResource("Animation_igcny")
+}
+
+[node name="Player" type="CharacterBody3D"]
+collision_layer = 2
+collision_mask = 3
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_qwyc7")
+
+[node name="ShapeCast3D" type="ShapeCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+shape = SubResource("BoxShape3D_6txl0")
+target_position = Vector3(0, 0, 0)
+
+[node name="Input Manager" type="Node" parent="."]
+script = ExtResource("7_61tfc")
+
+[node name="Jump Input" type="Node" parent="Input Manager"]
+script = ExtResource("8_6b77e")
+action_name = &"Jump"
+
+[node name="Sprint Input" type="Node" parent="Input Manager"]
+script = ExtResource("9_3sw8w")
+action_name = &"Sprint"
+
+[node name="Crouch Input" type="Node" parent="Input Manager"]
+script = ExtResource("9_3sw8w")
+action_name = &"Crouch"
+
+[node name="InputVector" type="Node" parent="Input Manager"]
+script = ExtResource("4_3bb1q")
+up_action = &"Move_F"
+down_action = &"Move_B"
+right_action = &"Move_R"
+left_action = &"Move_L"
+
+[node name="Movement Manager" type="Node" parent="." node_paths=PackedStringArray("move_body")]
+script = ExtResource("1_lc1wv")
+move_body = NodePath("..")
+
+[node name="Movement" type="Node" parent="Movement Manager" node_paths=PackedStringArray("speed_mod")]
+script = ExtResource("2_0vnm1")
+speed_mod = NodePath("../SpeedCrouch")
+acceleration = 1.0
+deceleration = 1.0
+
+[node name="Gravity" type="Node" parent="Movement Manager"]
+script = ExtResource("3_14un3")
+
+[node name="Jump" type="Node" parent="Movement Manager"]
+script = ExtResource("4_nvmm7")
+jump_force = 10.0
+
+[node name="Speed" type="Node" parent="Movement Manager"]
+script = ExtResource("5_8hxon")
+walk_speed = 5.0
+run_speed = 10.0
+
+[node name="Crouch" type="Node" parent="Movement Manager" node_paths=PackedStringArray("head_check")]
+script = ExtResource("11_f5iyu")
+head_check = NodePath("../../ShapeCast3D")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Movement Manager/Crouch"]
+libraries = {
+"": SubResource("AnimationLibrary_blnip")
+}
+
+[node name="SpeedCrouch" type="Node" parent="Movement Manager" node_paths=PackedStringArray("speed_node", "crouch_node")]
+script = ExtResource("11_rn585")
+speed_crouch_loss = 2.0
+speed_node = NodePath("../Speed")
+crouch_node = NodePath("../Crouch")
+
+[node name="Head" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Head"]
+current = true
+
+[node name="Camera Look" type="Node" parent="Head" node_paths=PackedStringArray("player_body")]
+script = ExtResource("5_oaegp")
+player_body = NodePath("../..")
+
+[connection signal="on_click" from="Input Manager/Jump Input" to="Movement Manager/Jump" method="set_jump_input"]
+[connection signal="on_toggle" from="Input Manager/Sprint Input" to="Movement Manager/Speed" method="get_sprint_input"]
+[connection signal="on_toggle" from="Input Manager/Crouch Input" to="Movement Manager/Crouch" method="toggle_crouch"]
+[connection signal="on_vector" from="Input Manager/InputVector" to="Movement Manager/Movement" method="get_move_input"]
+[connection signal="jumped" from="Movement Manager/Jump" to="Movement Manager/Crouch" method="uncrouch"]
